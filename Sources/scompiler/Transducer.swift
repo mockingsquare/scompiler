@@ -45,7 +45,10 @@ final class Parser: Transducer {
       let rawTable = rawTables[idx]
       // Get the class name for the type, then make a new instance then give it the table
       // Also, tell it that "I" am the transducer
-      TableFactory.create(type: rawTable!.type).transducer.self
+      var tableObject = TableFactory.create(type: rawTable!.type)
+      tableObject.registerTable(rawTable: rawTable!)
+      tableObject.transducer = self
+      tables.append(tableObject)
     }
   }
 
@@ -65,7 +68,7 @@ final class Parser: Transducer {
     
     while t.type != .AcceptTable {
       idx = t.run()! // idx be a number!
-      guard idx != nil else { break } // Else should not be run
+      // guard idx != nil else { break } // Else should not be run
       t = tables[idx]
     }
 
@@ -124,7 +127,7 @@ final class Scanner: Transducer {
   }
 
   func discardInput() ->  Character {
-    guard current != input!.endIndex else { return "\0" }
+    // guard current != input!.endIndex else { return nil }
     let prev = current!
     current = input!.index(after: current!)
     // returns a Character that scanner is neglecting
@@ -137,7 +140,6 @@ final class Scanner: Transducer {
     // * Somewhere during this execution, the semantic action buildToken:
     // * will execute putting something into variable 'token'
     var idx = 0
-    var table: Table? = nil
 
     while token == nil {
       let t = tables[idx] 
@@ -152,14 +154,24 @@ final class Scanner: Transducer {
     for idx in rawTablesIndices {
       //TODO: Check if rawTable is actually the parameter of registerTable
       let rawTable = rawTables[idx]
-      TableFactory.create(type: rawTable!.type).registerTable(rawTable: rawTable!)
+      var tableObject = TableFactory.create(type: rawTable!.type)
+      tableObject.registerTable(rawTable: rawTable!)
+      tableObject.transducer = self
+      tables.append(tableObject)
+/*
+      let rawTable = rawTables[idx]
+      // Get the class name for the type, then make a new instance then give it the table
+      // Also, tell it that "I" am the transducer
+      var tableObject = TableFactory.create(type: rawTable!.type)
+      tableObject.transducer = self
+*/
     }
   }
 
 
   // It peeks at input and returns an "Integer" according to the alphabet
-  func peekInput() -> Character {
-    guard current != input!.endIndex else { return "\0"}
+  func peekInput() -> Character? {
+    guard current != input!.endIndex else { return nil }
     return input![current!]
   }
 

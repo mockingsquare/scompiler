@@ -13,7 +13,14 @@ protocol RawTable {
   var type: String { get }
 }
 
+protocol RawTriple {
+  // func first<T>() -> T
+  // func second<T>() -> T
+  // func third<T>() -> T
+}
+
 class RawTableWithTransitions {
+  //There are certain types
   var transitions: [Int: (String, Int)] =  [Int: (String, Int)]()
   func registerTable(anArray: [(Int, String, Int)]) -> Void {
     for triple in anArray {
@@ -43,7 +50,8 @@ struct RawSemanticTable: RawTable {
   }
 }
 
-struct RawReadaheadTriple {
+struct RawReadaheadTriple: RawTriple {
+  let type = "RawReadaheadTriple"
   init (_ arg1: String, _ arg2: String, _ arg3: Int) {
     string = arg1
     attributes = arg2
@@ -52,11 +60,27 @@ struct RawReadaheadTriple {
   var string: String
   var attributes: String
   var gotoTable: Int
+
+  var first: String {
+    get {return string}
+  }
+
+  var second: String {
+    get {return attributes}
+  }
+
+  var third: Int {
+    get {return gotoTable}
+  }
+  
+  // func first<T>() -> T { return string }
+  // func second<T>() -> T {return attributes}
+  // func third<T>() -> T {return gotoTable}
 }
 
 struct RawReadaheadTable: RawTable {
   let type = "ReadaheadTable"
-  init(_ a: String, _ b: Int, _ c: Int, _ d: RawReadaheadTriple) {
+  init(_ a: String, _ b: Int, _ c: Int, _ d: [RawReadaheadTriple]) {
     name = a
     state = b
     size = c
@@ -65,7 +89,7 @@ struct RawReadaheadTable: RawTable {
   var name: String
   var state: Int
   var size: Int
-  var triples: RawReadaheadTriple
+  var triples: [RawReadaheadTriple]
 }
 
 struct RawReadbackPair {
@@ -77,7 +101,8 @@ struct RawReadbackPair {
   var state: Int
 }
 
-struct RawReadbackTriple {
+struct RawReadbackTriple: RawTriple {
+  let type = "RawReadbackTriple"
   init(_ a: (String, Int), _ b: String, _ c: Int) {
     pair = RawReadbackPair(a.0, a.1)
     attributes = b
@@ -86,6 +111,28 @@ struct RawReadbackTriple {
   var pair: RawReadbackPair
   var attributes: String
   var gotoTable: Int
+
+  var first: RawReadbackPair {
+    get {
+      return pair
+    }
+  } 
+
+  var second: String {
+    get {
+      return attributes
+    }
+  }
+
+  var third: Int {
+    get {
+      return gotoTable
+    }
+  }
+
+  // func first<T>() -> T { return pair }
+  // func second<T>() -> T {return attributes}
+  // func third<T>() -> T {return gotoTable}
 }
 
 struct RawReadbackTable: RawTable {
@@ -117,7 +164,8 @@ struct RawShiftbackTable: RawTable {
   var gotoTable: Int
 }
 
-struct RawReduceTriple {
+struct RawReduceTriple: RawTriple {
+  let type = "RawReduceTriple"
   init(_ a: Int, _ b: String, _ c: Int) {
     stackTopState = a
     attributes = b
@@ -126,6 +174,10 @@ struct RawReduceTriple {
   var stackTopState: Int
   var attributes: String
   var gotoTable: Int
+
+  // func first<T>() -> T {return stackTopState}
+  // func second<T>() -> T {return attributes}
+  // func third<T>() -> T {return gotoTable}
 }
 
 struct RawReduceTable: RawTable {
@@ -189,11 +241,12 @@ struct RawParserTables: RawTables {
       readaheadTablesSize + readbackTablesSize + shiftbackTablesSize + reduceTablesSize,
       readaheadTablesSize + readbackTablesSize + shiftbackTablesSize + reduceTablesSize + semanticTablesSize
     ]
-    if 0 < index && index < bound[0] {return readaheadTables[index]} 
+    if index >= 0, index < bound[0] {return readaheadTables[index]} 
     else if index < bound[1] {return readbackTables[index - bound[0]]} 
     else if index < bound[2] {return shiftbackTables[index - bound[1]]} 
     else if index < bound[3] {return reduceTables[index - bound[2]]}
     else if index < bound[4] {return semanticTables[index - bound[3]]}
+    else if index <= bound[4] {return acceptTable}
     print("RawParserTables: Index out of bound")
     return nil
   }
@@ -228,22 +281,39 @@ struct RawParserTables: RawTables {
 */
 
 struct RawScannerReadaheadTriple: CustomStringConvertible {
-  init(_ a: String?, _ b: String, _ c: Int64) {
+  let type = "RawScannerReadaheadTriple"
+  init(_ a: String, _ b: String, _ c: Int64) {
     string = a
     attributes = b
     gotoTableNumber = c
   }
-  let string: String?
+  let string: String
   let attributes: String
   let gotoTableNumber: Int64
   var description: String {
     return ""
   }
+
+  var first: String {
+    get {return string}
+  }
+
+  var second: String {
+    get {return attributes}
+  }
+
+  var third: Int64 {
+    get {return gotoTableNumber}
+  }
+  // func first() -> String { return string }
+  // func second() -> String { return attributes }
+  // func third() -> Int64 {return gotoTableNumber}
+
 }
 
 class RawScannerReadaheadTable: RawTableWithTransitions, RawTable {
   let type = "ScannerReadaheadTable"
-  init(_ a: String, _ b: Int64, _ c: Int64, _ d: RawScannerReadaheadTriple) {
+  init(_ a: String, _ b: Int64, _ c: Int64, _ d: [RawScannerReadaheadTriple]) {
     name = a
     stateNumber = b
     size = c
@@ -252,27 +322,10 @@ class RawScannerReadaheadTable: RawTableWithTransitions, RawTable {
   let name: String
   let stateNumber: Int64
   let size: Int64
-  let triples: RawScannerReadaheadTriple
+  let triples: [RawScannerReadaheadTriple]
 
   var description: String { return "" }
 }
-
-// struct RawSemanticTable {
-//   init(_ a: String, _ b: Int64, _ c: String, _ d: Int64, _ e: [String], _ f: Int64) {
-//     name = a
-//     stateNumber = b
-//     action = c
-//     size = d
-//     parameters = e
-//     gotoTableNumber = f
-//   }
-//   var name: String
-//   var stateNumber: Int64 
-//   var action: String
-//   var size: Int64
-//   var parameters: [String]
-//   var gotoTableNumber: Int64
-// }
 
 struct RawScannerTables: RawTables {
   // var transducer: Transducer
@@ -297,7 +350,7 @@ struct RawScannerTables: RawTables {
       scannerReadaheadTablesSize, 
       scannerReadaheadTablesSize + semanticTablesSize, 
     ]
-    if index >= 0 && index < bound[0] {return scannerReadaheadTables[index]} 
+    if index >= 0, index < bound[0] {return scannerReadaheadTables[index]} 
     else if index < bound[1] {return semanticTables[index - bound[0]]} 
     print("RawParserTables: Index out of bound")
     return nil

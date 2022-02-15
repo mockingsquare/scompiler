@@ -270,32 +270,32 @@ class SampleTranslator {
   ]
 
   static let readaheadTables: [RawReadaheadTable] = [  
-    RawReadaheadTable("ReadaheadTable", 0, 7, ra0[0]), 
-    RawReadaheadTable("ReadaheadTable", 1, 4, ra1[0]), 
-    RawReadaheadTable("ReadaheadTable", 2, 9, ra2[0]), 
-    RawReadaheadTable("ReadaheadTable", 3, 11, ra3[0]), 
-    RawReadaheadTable("ReadaheadTable", 4, 6, ra4[0]), 
-    RawReadaheadTable("ReadaheadTable", 5, 5, ra5[0]), 
-    RawReadaheadTable("ReadaheadTable", 6, 5, ra6[0]), 
-    RawReadaheadTable("ReadaheadTable", 7, 1, ra7[0]), 
-    RawReadaheadTable("ReadaheadTable", 8, 4, ra8[0]), 
-    RawReadaheadTable("ReadaheadTable", 9, 4, ra9[0]), 
-    RawReadaheadTable("ReadaheadTable", 10, 7, ra10[0]), 
-    RawReadaheadTable("ReadaheadTable", 11, 6, ra11[0]), 
-    RawReadaheadTable("ReadaheadTable", 12, 3, ra12[0]), 
-    RawReadaheadTable("ReadaheadTable", 13, 10, ra13[0]), 
-    RawReadaheadTable("ReadaheadTable", 14, 9, ra14[0]), 
-    RawReadaheadTable("ReadaheadTable", 15, 9, ra15[0]), 
-    RawReadaheadTable("ReadaheadTable", 16, 1, ra16[0]), 
-    RawReadaheadTable("ReadaheadTable", 17, 4, ra17[0]), 
-    RawReadaheadTable("ReadaheadTable", 18, 3, ra18[0]), 
-    RawReadaheadTable("ReadaheadTable", 19, 6, ra19[0]), 
-    RawReadaheadTable("ReadaheadTable", 20, 6, ra20[0]), 
-    RawReadaheadTable("ReadaheadTable", 21, 2, ra21[0]), 
-    RawReadaheadTable("ReadaheadTable", 22, 3, ra22[0]), 
-    RawReadaheadTable("ReadaheadTable", 23, 4, ra23[0]), 
-    RawReadaheadTable("ReadaheadTable", 24, 1, ra24[0]), 
-    RawReadaheadTable("ReadaheadTable", 25, 2, ra25[0]),
+    RawReadaheadTable("ReadaheadTable", 0, 7, ra0), 
+    RawReadaheadTable("ReadaheadTable", 1, 4, ra1), 
+    RawReadaheadTable("ReadaheadTable", 2, 9, ra2), 
+    RawReadaheadTable("ReadaheadTable", 3, 11, ra3), 
+    RawReadaheadTable("ReadaheadTable", 4, 6, ra4), 
+    RawReadaheadTable("ReadaheadTable", 5, 5, ra5), 
+    RawReadaheadTable("ReadaheadTable", 6, 5, ra6), 
+    RawReadaheadTable("ReadaheadTable", 7, 1, ra7), 
+    RawReadaheadTable("ReadaheadTable", 8, 4, ra8), 
+    RawReadaheadTable("ReadaheadTable", 9, 4, ra9), 
+    RawReadaheadTable("ReadaheadTable", 10, 7, ra10), 
+    RawReadaheadTable("ReadaheadTable", 11, 6, ra11), 
+    RawReadaheadTable("ReadaheadTable", 12, 3, ra12), 
+    RawReadaheadTable("ReadaheadTable", 13, 10, ra13), 
+    RawReadaheadTable("ReadaheadTable", 14, 9, ra14), 
+    RawReadaheadTable("ReadaheadTable", 15, 9, ra15), 
+    RawReadaheadTable("ReadaheadTable", 16, 1, ra16), 
+    RawReadaheadTable("ReadaheadTable", 17, 4, ra17), 
+    RawReadaheadTable("ReadaheadTable", 18, 3, ra18), 
+    RawReadaheadTable("ReadaheadTable", 19, 6, ra19), 
+    RawReadaheadTable("ReadaheadTable", 20, 6, ra20), 
+    RawReadaheadTable("ReadaheadTable", 21, 2, ra21), 
+    RawReadaheadTable("ReadaheadTable", 22, 3, ra22), 
+    RawReadaheadTable("ReadaheadTable", 23, 4, ra23), 
+    RawReadaheadTable("ReadaheadTable", 24, 1, ra24), 
+    RawReadaheadTable("ReadaheadTable", 25, 2, ra25),
   ]
 
   /******************************
@@ -360,14 +360,15 @@ class SampleTranslator {
 
   // Define an array of readback table
   static let readbackTables: [RawReadbackTable] = [
-    RawReadbackTable("ReadbackTable", 26, 3, rb27), 
-    RawReadbackTable("ReadbackTable", 27, 6, rb28), 
-    RawReadbackTable("ReadbackTable", 28, 6, rb29), 
-    RawReadbackTable("ReadbackTable", 29, 3, rb30), 
-    RawReadbackTable("ReadbackTable", 30, 3, rb31), 
-    RawReadbackTable("ReadbackTable", 31, 2, rb32), 
-    RawReadbackTable("ReadbackTable", 32, 2, rb33), 
-    RawReadbackTable("ReadbackTable", 33, 2, rb34), 
+    RawReadbackTable("ReadbackTable", 26, 3, rb26), 
+    RawReadbackTable("ReadbackTable", 27, 6, rb27), 
+    RawReadbackTable("ReadbackTable", 28, 6, rb28), 
+    RawReadbackTable("ReadbackTable", 29, 3, rb29), 
+    RawReadbackTable("ReadbackTable", 30, 3, rb30), 
+    RawReadbackTable("ReadbackTable", 31, 2, rb31), 
+    RawReadbackTable("ReadbackTable", 32, 2, rb32), 
+    RawReadbackTable("ReadbackTable", 33, 2, rb33),
+    RawReadbackTable("ReadbackTable", 34, 2, rb34) 
   ]
 
   /******************************
@@ -480,7 +481,7 @@ class SampleTranslator {
     *                            *
     ******************************/
   static var t0: [RawScannerReadaheadTriple] = [
-    RawScannerReadaheadTriple(nil, "L", 4), 
+    RawScannerReadaheadTriple("\0", "L", 4),  //MARK: should be end of file; not sure if I should put it nil
     RawScannerReadaheadTriple("ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz", "RK", 2),
     RawScannerReadaheadTriple(")", "RK", 6),
     RawScannerReadaheadTriple("*", "RK", 7), 
@@ -498,27 +499,27 @@ class SampleTranslator {
    
   static var t1: [RawScannerReadaheadTriple] = [
     RawScannerReadaheadTriple("\011\012\014\015", "L", 12), 
-    RawScannerReadaheadTriple(nil, "L", 12), 
+    RawScannerReadaheadTriple("\0", "L", 12), 
     RawScannerReadaheadTriple("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_+-*/=[]{}()^;#:.$'\" ", "L", 12), 
     RawScannerReadaheadTriple("0123456789", "RK", 1)
   ]
   static var t2: [RawScannerReadaheadTriple] = [
     RawScannerReadaheadTriple("\011\012\014\015", "L", 15), 
-    RawScannerReadaheadTriple(nil, "L", 15), 
+    RawScannerReadaheadTriple("\0", "L", 15), 
     RawScannerReadaheadTriple("+-*/=[]{}()^;#:.$'\" ", "L", 15), 
     RawScannerReadaheadTriple("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz", "RK", 2)
   ]
   static var t3: [RawScannerReadaheadTriple] = [
-    RawScannerReadaheadTriple(nil, "L", 0),
+    RawScannerReadaheadTriple("\0", "L", 0),
     RawScannerReadaheadTriple("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_0123456789+-*/=[]{}()^;#:.$'\"", "L", 0),
     RawScannerReadaheadTriple("\011\012\014\015", "R", 3), 
     RawScannerReadaheadTriple(" ", "R", 3)
   ]
   static var scannerReadaheadTables: [RawScannerReadaheadTable] = [
-    RawScannerReadaheadTable("ScannerReadaheadTable", 0, 14, t0[0]), 
-    RawScannerReadaheadTable("ScannerReadaheadTable", 1, 4, t1[0]), 
-    RawScannerReadaheadTable("ScannerReadaheadTable", 2, 4, t2[0]), 
-    RawScannerReadaheadTable("ScannerReadaheadTable", 3, 4, t3[0])
+    RawScannerReadaheadTable("ScannerReadaheadTable", 0, 14, t0), 
+    RawScannerReadaheadTable("ScannerReadaheadTable", 1, 4, t1), 
+    RawScannerReadaheadTable("ScannerReadaheadTable", 2, 4, t2), 
+    RawScannerReadaheadTable("ScannerReadaheadTable", 3, 4, t3)
   ]
 
   //Define VARIABLES to refer to semantic table PARAMETERs.
