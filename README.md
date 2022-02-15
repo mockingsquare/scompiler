@@ -25,4 +25,5 @@ Windows, Mac, and Linux are all supported by Swift. If you are new to Swift, I s
 
 `swift build`
 
-`swift run`
+1. To use a prompt: `swift run`
+2. To use a file: `swift run scompiler [filename]`
