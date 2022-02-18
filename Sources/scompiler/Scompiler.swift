@@ -66,9 +66,7 @@ struct Scompiler {
     ts.compile(text: code)
   }
 
-  static func evaluate(_ code: String) {
-
-  }
+  static func evaluate(_ code: String) {}
 
   static func error(_ line: Int, _ message: String) {
     report(line, "", message)

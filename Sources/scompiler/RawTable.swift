@@ -31,7 +31,7 @@ class RawTableWithTransitions {
 
 struct RawSemanticTable: RawTable {
   let type = "SemanticTable"
-  init(_ a: String, _ b: Int, _ c: String, _ d: Int64, _ e: [String], _ f: Int64) {
+  init(_ a: String, _ b: Int, _ c: String, _ d: Int, _ e: [String], _ f: Int) {
     name = a
     state = b
     action = c
@@ -42,9 +42,9 @@ struct RawSemanticTable: RawTable {
   let name: String
   let state: Int
   let action: String
-  let size: Int64
+  let size: Int
   let parameters: [String]
-  let gotoTableNumber: Int64
+  let gotoTableNumber: Int
   var description: String {
     return ""
   }
