@@ -6,7 +6,7 @@
 //  Copyright © 2022 Jeeheon Kim. All rights reserved.
 //
 
-class Token: TreeChild, Hashable, Equatable {
+class Token: TreeNode, Hashable, Equatable {
   var label: String?
   var symbol: String?
 

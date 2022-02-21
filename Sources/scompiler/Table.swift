@@ -15,8 +15,13 @@ protocol Table {
   func registerTable(rawTable: RawTable) -> Void
 }
 
-protocol TableWithTransitions {
+// TODO: Maybe it is better to make (String, Int) an object so that we can add methods for checking isRead/isNode/isStack...
+protocol TableWithTransitionsWithIntKey {
   var transitions: [Int: (String, Int)] { get set }
+}
+
+protocol TableWithTransitionsWithStringKey {
+  var transitions: [String: (String, Int)] { get set }
 }
 
 class TableFactory {
@@ -34,7 +39,7 @@ class TableFactory {
   }
 }
 
-class ScannerReadaheadTable: Table, TableWithTransitions {
+class ScannerReadaheadTable: Table, TableWithTransitionsWithIntKey {
   var type = TableType.ScannerReadaheadTable
   var transducer: Transducer? 
   var transitions = [Int: (String, Int)]()
@@ -45,7 +50,7 @@ class ScannerReadaheadTable: Table, TableWithTransitions {
     let char = s.peekInput()
     guard char != nil else { return nil }
     let charAsInt = Int(char!.asciiValue!)
-    guard charAsInt != nil else { return nil }
+    // guard charAsInt != nil else { return nil }
     let pair = transitions[charAsInt]
     if pair != nil {
       let attributes = pair!.0; let goto = pair!.1
@@ -95,9 +100,8 @@ class SemanticTable: Table {
     self.action = t.action
     self.parameters = t.parameters
     self.goto = t.gotoTableNumber
-
-    
   }
+
   func run() -> Int? { 
     // See if the given transducer can understand action
     // scanner's actions have value of true
@@ -139,35 +143,49 @@ class SemanticTable: Table {
   }
 }
 
-class ReadaheadTable: Table, TableWithTransitions {
+class ReadaheadTable: Table, TableWithTransitionsWithStringKey {
   var type = TableType.ReadaheadTable
   var transducer: Transducer?
-  var transitions:[Int: (String, Int)] = [:]
+  var transitions:[String: (String, Int)] = [:]
 
   func registerTable(rawTable: RawTable) -> Void {
     // peek at the next token label
+    guard rawTable is RawReadaheadTable else { 
+      print("lol-2"); return 
+    }
+    let t = rawTable as! RawReadaheadTable
+    
+    transitions = [:]
+    for triple in t.triples {
+      transitions[triple.first] = (triple.second, triple.third)
+    }
+  }
+
+  func run() -> Int? {
+    // peek at the next token label
     guard transducer is Parser else { 
-      print("funny"); return 
+      print("funny");
+      return nil;
     }
     let transducer = transducer as! Parser
     let token = transducer.peekScannerToken()
     let tokenLabel = token.label
-    guard tokenLabel != nil else { return print("TODO: implement syntax error") }
-    // transitions is saying that the key is Int
-    // tokenLabel is string
-    let transition = transitions[tokenLabel]
-    let attributes = transition.attributes; let goto = transition.goto
+    guard tokenLabel != nil else { print("TODO: implement syntax error"); return nil; }
+
+    let transition = transitions[tokenLabel!]!
+    let attributes = transition.0; let goto = transition.1
     
     let isRead = attributes.contains("R")
     let isNode = attributes.contains("N")
     let isStack = attributes.contains("S")
-    if isRead != true { return goto }
+    if !isRead {
+      return goto
+    }
     transducer.discardScannerToken()
     if isStack {
       transducer.tokenStack.append(token)
-      transducer.tableNumberStack.append(goto)
-      // Does a tree s
-      transducer.treeStack!.append(isNode ? token : nil)
+      transducer.right = transducer.tokenStack.count
+      transducer.left = transducer.right + 1
     }
     // Use the transition that matches it if there is one
     // Use the attributes to determine what do to
@@ -175,10 +193,6 @@ class ReadaheadTable: Table, TableWithTransitions {
     // Case "R": meas look("L")
     // Case "N": make the token part of a tree
     // Case "S": stack - 
-
-  }
-
-  func run() -> Int? {
-      
+    return goto
   }
 }

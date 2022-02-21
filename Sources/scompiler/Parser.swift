@@ -13,8 +13,8 @@ final class Parser: Transducer {
     Token(label: "|-", symbol: "|-")
   ]
   var tableNumberStack: [Int] = [1]
-  var treeStack: [Any]? = nil
-  var left: Int = 1
+  var treeStack: [Token?]? = nil
+  var left: Int = 1   // left, right has to do with a treeStack
   var right: Int = 1
   var tableNumber: AnyObject? = nil
   var newTree: AnyObject? = nil
@@ -45,7 +45,7 @@ final class Parser: Transducer {
     }
   }
 
-  func parse(_ text: String) -> Any? {
+  func parse(_ text: String) -> TreeNode? {
     /*
     	To parse the text, you have to give it to the scanner (say via scan: text).
       It in turn should have the first token set up for you. Next you need
@@ -66,7 +66,7 @@ final class Parser: Transducer {
     }
 
     if let s = treeStack {
-      return s.last
+      return s.last!
     }
 
     return nil //TODO: shouldn't come here

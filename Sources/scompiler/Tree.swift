@@ -6,9 +6,9 @@
 //  Copyright © 2022 Jeeheon Kim. All rights reserved.
 //
 
-class Tree: TreeChild {
-  var children: [TreeChild] = [TreeChild]()
-  var label: String
+class Tree: TreeNode {
+  var children: [TreeNode] = [TreeNode]()
+  var label: String?
 
   init(fromArray: [Any]) throws {
     throw MyError.runtimeError("Need be implemented")
@@ -17,12 +17,13 @@ class Tree: TreeChild {
   init(fromOldStyleArray: [Any]) throws {
     throw MyError.runtimeError("Need be implemented")
   }
-  override init() {
+  
+  init() {
     label = "Temporary String"
     print("tree initializaer empty")
   }
 
-  func addChild(aTree: TreeChild) {
+  func addChild(aTree: TreeNode) {
     children.append(aTree)
   }
   

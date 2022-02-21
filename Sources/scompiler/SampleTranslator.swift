@@ -7,15 +7,15 @@
 //
 import Foundation
 
-typealias myClosure = (TreeChild) -> Void
+typealias myClosure = (TreeNode) -> Void
 
 class SampleTranslator: Translator {
   var parser: Parser?
-  var tree: Tree? = nil
+  var tree: TreeNode? = nil
   var codeIfCompiler: OutputStream = OutputStream(toMemory: ())
   var expressionsIfEvaluator: [String: Any]?
   var compilationOperatorMap: [String: myClosure]?
-  var evaluationOperatorMap: [String: String]?
+  var evaluationOperatorMap: [String: myClosure]?
   func performActionWithParameter(action: String, param: [Any]) -> Void {
     // TODO: for semantic table
   }
@@ -41,20 +41,21 @@ class SampleTranslator: Translator {
       "where": compileWhere,
     ]
     evaluationOperatorMap = [
-      "+": "evaluatePlus",
-      "-": "evaluateMinus:",
-      "*": "evaluateMultiply",
-      "/": "evaluateDivide",
-      "<-": "evaluateAssign",
-      "Identifier": "evaluateIdentifier",
-      "Integer": "evaluateInteger",
-      "send": "evaluateFunctionCall",
-      "where": "evaluateWhere",      
+      "+": evaluatePlus,
+      "-": evaluateMinus,
+      "*": evaluateMultiply,
+      "/": evaluateDivide,
+      // "<-": "evaluateAssign",
+      // "Identifier": "evaluateIdentifier",
+      // "Integer": "evaluateInteger",
+      // "send": "evaluateFunctionCall",
+      // "where": "evaluateWhere",      
     ]
   }
 
   func compile(text: String) {
     if let p = parser {
+      guard p.parse(text) != nil else {return}
       self.tree = p.parse(text)
       if let t = self.tree {
         compileExpressionFor(t)
@@ -66,37 +67,37 @@ class SampleTranslator: Translator {
     }
   }
 
-  func compileExpressionFor(_ tree: TreeChild) {
+  func compileExpressionFor(_ tree: TreeNode) {
     let t = tree as! Tree // or is it a token?
-    if let operatorMapFunction = compilationOperatorMap?[t.label] {
+    if let operatorMapFunction = compilationOperatorMap?[t.label!] {
       operatorMapFunction(tree)
     }
   }
 
 
-  func compilePlus(_ tree: TreeChild) -> Void {
+  func compilePlus(_ tree: TreeNode) -> Void {
     print("need to write compilePlus")
   }
 
-  func compileMinus(_ tree: TreeChild) -> Void {
+  func compileMinus(_ tree: TreeNode) -> Void {
     print("need to write compileMinus")
   }
 
-  func compileMultiply(_ tree: TreeChild) -> Void{
+  func compileMultiply(_ tree: TreeNode) -> Void{
     let t = tree as! Tree
     compileExpressionFor(t.children[0])
     compileExpressionFor(t.children[1])
     generate(instruction: "MULTIPLY")
   }
 
-  func compileDivide(_ tree: TreeChild) -> Void {
+  func compileDivide(_ tree: TreeNode) -> Void {
     let t = tree as! Tree
     compileExpressionFor(t.children[0])
     compileExpressionFor(t.children[1])
     generate(instruction: "DIVIDE")
   }
 
-  func compileAssign(_ tree: TreeChild) -> Void {
+  func compileAssign(_ tree: TreeNode) -> Void {
     let t = tree as! Tree
     for index in t.children.indices {
       compileExpressionFor(t.children[index])
@@ -104,15 +105,15 @@ class SampleTranslator: Translator {
     }
   }
 
-  func compileIdentifier(_ tree: TreeChild) -> Void {
+  func compileIdentifier(_ tree: TreeNode) -> Void {
 
   }
 
-  func compileInteger(_ tree: TreeChild) -> Void {
+  func compileInteger(_ tree: TreeNode) -> Void {
 
   }
 
-  func compileFunctionCall(_ tree: TreeChild) -> Void {
+  func compileFunctionCall(_ tree: TreeNode) -> Void {
     let t = tree as! Tree
     let childrenIndices: CountableClosedRange = 1...t.children.count
     for index in childrenIndices {
@@ -122,7 +123,7 @@ class SampleTranslator: Translator {
     generate(instruction: "FUNCTION_CALL", operand: aToken.symbol!)
   }
 
-  func compileWhere(_ tree: TreeChild) -> Void {
+  func compileWhere(_ tree: TreeNode) -> Void {
     //TODO: [Not implemented] It's ignoring other children
     let aChild = (tree as! Tree).children[0]
     compileExpressionFor(aChild)
@@ -135,5 +136,21 @@ class SampleTranslator: Translator {
   func generate(instruction: String, operand: String) {
     let str = "\n" + instruction + " "
     codeIfCompiler.write(Data(str.utf8))
+  }
+
+  func evaluatePlus(_ tree: TreeNode) -> Void {
+
+  }
+
+  func evaluateMinus(_ tree: TreeNode) -> Void {
+
+  }
+
+  func evaluateMultiply(_ tree: TreeNode) -> Void {
+    
+  }
+
+  func evaluateDivide(_ tree: TreeNode) -> Void {
+
   }
 }
