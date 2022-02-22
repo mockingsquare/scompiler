@@ -7,15 +7,16 @@
 //
 import Foundation
 
-typealias myClosure = (TreeNode) -> Void
+typealias compileClosure = (TreeNode) -> Void
+typealias evaluateClosure = (TreeNode) -> Int
 
 class SampleTranslator: Translator {
   var parser: Parser?
   var tree: TreeNode? = nil
   var codeIfCompiler: OutputStream = OutputStream(toMemory: ())
   var expressionsIfEvaluator: [String: Any]?
-  var compilationOperatorMap: [String: myClosure]?
-  var evaluationOperatorMap: [String: myClosure]?
+  var compilationOperatorMap: [String: compileClosure]?
+  var evaluationOperatorMap: [String: evaluateClosure]?
   func performActionWithParameter(action: String, param: [Any]) -> Void {
     // TODO: for semantic table
   }
@@ -55,7 +56,9 @@ class SampleTranslator: Translator {
 
   func compile(text: String) {
     if let p = parser {
-      guard p.parse(text) != nil else {return}
+      guard p.parse(text) != nil else {
+        return
+      }
       self.tree = p.parse(text)
       if let t = self.tree {
         compileExpressionFor(t)
@@ -76,7 +79,10 @@ class SampleTranslator: Translator {
 
 
   func compilePlus(_ tree: TreeNode) -> Void {
-    print("need to write compilePlus")
+    let t = tree as! Tree
+    compileExpressionFor(t.children[0])
+    compileExpressionFor(t.children[1])
+    generate(instruction: "PLUS")
   }
 
   func compileMinus(_ tree: TreeNode) -> Void {
@@ -105,13 +111,9 @@ class SampleTranslator: Translator {
     }
   }
 
-  func compileIdentifier(_ tree: TreeNode) -> Void {
+  func compileIdentifier(_ tree: TreeNode) -> Void {}
 
-  }
-
-  func compileInteger(_ tree: TreeNode) -> Void {
-
-  }
+  func compileInteger(_ tree: TreeNode) -> Void {}
 
   func compileFunctionCall(_ tree: TreeNode) -> Void {
     let t = tree as! Tree
@@ -138,19 +140,35 @@ class SampleTranslator: Translator {
     codeIfCompiler.write(Data(str.utf8))
   }
 
-  func evaluatePlus(_ tree: TreeNode) -> Void {
-
+  func evaluateExpressionFor(_ tree: TreeNode) -> Int {
+    return evaluationOperatorMap![tree.label!]!(tree)
   }
 
-  func evaluateMinus(_ tree: TreeNode) -> Void {
-
+  func evaluatePlus(_ tree: TreeNode) -> Int {
+    let t = tree as! Tree
+    let exp1 = evaluateExpressionFor(t.children[0])
+    let exp2 = evaluateExpressionFor(t.children[1])
+    return exp1 + exp2  
   }
 
-  func evaluateMultiply(_ tree: TreeNode) -> Void {
-    
+  func evaluateMinus(_ tree: TreeNode) -> Int {
+    let t = tree as! Tree
+    let exp1 = evaluateExpressionFor(t.children[0])
+    let exp2 = evaluateExpressionFor(t.children[1])
+    return exp1 - exp2  
   }
 
-  func evaluateDivide(_ tree: TreeNode) -> Void {
+  func evaluateMultiply(_ tree: TreeNode) -> Int {
+    let t = tree as! Tree
+    let exp1 = evaluateExpressionFor(t.children[0])
+    let exp2 = evaluateExpressionFor(t.children[1])
+    return exp1 * exp2
+  }
 
+  func evaluateDivide(_ tree: TreeNode) -> Int {
+    let t = tree as! Tree
+    let exp1 = evaluateExpressionFor(t.children[0])
+    let exp2 = evaluateExpressionFor(t.children[1])
+    return exp1 / exp2
   }
 }

@@ -9,3 +9,11 @@
 enum MyError: Error {
     case runtimeError(String)
 }
+
+enum TransducerError: Error {
+  case invalidRawTable
+  case transducerError // invalid transducer to perform the given task
+  case designError(String)
+  case lexicalError
+  case invalidAction
+}

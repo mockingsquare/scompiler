@@ -13,11 +13,7 @@ protocol RawTable {
   var type: String { get }
 }
 
-protocol RawTriple {
-  // func first<T>() -> T
-  // func second<T>() -> T
-  // func third<T>() -> T
-}
+protocol RawTriple {}
 
 class RawTableWithTransitions {
   //There are certain types
@@ -92,27 +88,18 @@ struct RawReadaheadTable: RawTable {
   var triples: [RawReadaheadTriple]
 }
 
-struct RawReadbackPair {
-  init(_ a: String, _ b: Int) {
-    symbol = a
-    state = b
-  }
-  var symbol: String
-  var state: Int
-}
-
 struct RawReadbackTriple: RawTriple {
   let type = "RawReadbackTriple"
   init(_ a: (String, Int), _ b: String, _ c: Int) {
-    pair = RawReadbackPair(a.0, a.1)
+    pair = a //(symbol, state)
     attributes = b
     gotoTable = c
   }
-  var pair: RawReadbackPair
+  var pair: (String, Int)
   var attributes: String
   var gotoTable: Int
 
-  var first: RawReadbackPair {
+  var first: (String, Int) {
     get {
       return pair
     }
@@ -129,10 +116,6 @@ struct RawReadbackTriple: RawTriple {
       return gotoTable
     }
   }
-
-  // func first<T>() -> T { return pair }
-  // func second<T>() -> T {return attributes}
-  // func third<T>() -> T {return gotoTable}
 }
 
 struct RawReadbackTable: RawTable {
@@ -171,13 +154,10 @@ struct RawReduceTriple: RawTriple {
     attributes = b
     gotoTable = c
   }
+  //fromTableNumber, attributes, toTableNumber
   var stackTopState: Int
   var attributes: String
   var gotoTable: Int
-
-  // func first<T>() -> T {return stackTopState}
-  // func second<T>() -> T {return attributes}
-  // func third<T>() -> T {return gotoTable}
 }
 
 struct RawReduceTable: RawTable {
@@ -305,10 +285,6 @@ struct RawScannerReadaheadTriple: CustomStringConvertible {
   var third: Int64 {
     get {return gotoTableNumber}
   }
-  // func first() -> String { return string }
-  // func second() -> String { return attributes }
-  // func third() -> Int64 {return gotoTableNumber}
-
 }
 
 class RawScannerReadaheadTable: RawTableWithTransitions, RawTable {

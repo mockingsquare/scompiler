@@ -13,7 +13,7 @@ final class Parser: Transducer {
     Token(label: "|-", symbol: "|-")
   ]
   var tableNumberStack: [Int] = [1]
-  var treeStack: [Token?]? = nil
+  var treeStack: [TreeNode?] = []
   var left: Int = 1   // left, right has to do with a treeStack
   var right: Int = 1
   var tableNumber: AnyObject? = nil
@@ -38,10 +38,14 @@ final class Parser: Transducer {
       let rawTable = rawTables[idx]
       // Get the class name for the type, then make a new instance then give it the table
       // Also, tell it that "I" am the transducer
-      var tableObject = TableFactory.create(type: rawTable!.type)
-      tableObject.registerTable(rawTable: rawTable!)
-      tableObject.transducer = self
-      tables.append(tableObject)
+      do {
+        var table = try TableFactory.create(type: rawTable!.type)
+        table.registerTable(rawTable: rawTable!)
+        table.transducer = self
+        tables.append(table)
+      } catch {
+        print("Sanitize Raw tables - error in your raw data"); return
+      }
     }
   }
 
@@ -57,28 +61,32 @@ final class Parser: Transducer {
     */
     scanner.scanTokens(text) 
     var idx: Int = 0
-    var t = tables[idx]
+    var table = tables[idx]
     
-    while t.type != .AcceptTable {
-      idx = t.run()! // idx be a number!
-      // guard idx != nil else { break } // Else should not be run
-      t = tables[idx]
-    }
+    while table.type != .AcceptTable {
+      do {
+        idx = try table.run()! // idx be a number!
+        // guard idx != nil else { break } // Else should not be run
+        table = tables[idx]
+      } catch {
+        print("Parser error")
+      }
+    } 
 
-    if let s = treeStack {
-      return s.last!
-    }
-
-    return nil //TODO: shouldn't come here
+    return treeStack.last!
   }
 
   func registerTable(rawTables: RawParserTables) -> Void {
     let rawTablesIndices = 0..<rawTables.size
     for idx in rawTablesIndices {
       let t = rawTables[idx]
-      var table = TableFactory.create(type: t!.type)
-      table.transducer = self
-      self.tables.append(table)
+      do {
+        var table = try TableFactory.create(type: t!.type)
+        table.transducer = self
+        self.tables.append(table)
+      } catch {
+        print("Raw table error: there is a raw table that we cannot handle"); return
+      }
     }
   }
   

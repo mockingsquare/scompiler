@@ -34,6 +34,18 @@ final class Scanner: Transducer {
     discardToken()
   }
 
+  override func performActionWithParameter(action: String, param: Any...) throws -> Void {
+    switch ScannerActionType(rawValue: action) {
+      case .buildToken:
+        guard param.count == 1 else {  
+          throw TransducerError.invalidAction
+        }
+        buildToken(label: param as! String)
+      default:
+        throw TransducerError.invalidAction
+    }
+  }
+
   func buildToken(label: String) {
     // Create a token with the supplied label and keptCharacters in the scanner
     // the result would be used by `peek`
@@ -59,8 +71,16 @@ final class Scanner: Transducer {
     var idx = 0
 
     while token == nil {
-      let t = tables[idx] 
-      idx = t.run()!
+      let table = tables[idx] 
+      if table == nil {
+        print("catch")
+      }
+      do {
+        idx = try table.run()!
+      } catch {
+        print("discardToken - having error")
+        return
+      }
     }
   }
 
@@ -71,28 +91,31 @@ final class Scanner: Transducer {
     for idx in rawTablesIndices {
       //TODO: Check if rawTable is actually the parameter of registerTable
       let rawTable = rawTables[idx]
-      var tableObject = TableFactory.create(type: rawTable!.type)
-      tableObject.registerTable(rawTable: rawTable!)
-      tableObject.transducer = self
-      tables.append(tableObject)
-/*
-      let rawTable = rawTables[idx]
-      // Get the class name for the type, then make a new instance then give it the table
-      // Also, tell it that "I" am the transducer
-      var tableObject = TableFactory.create(type: rawTable!.type)
-      tableObject.transducer = self
-*/
+      do {
+        var table = try TableFactory.create(type: rawTable!.type)
+        table.registerTable(rawTable: rawTable!)
+        table.transducer = self
+        tables.append(table)
+      } catch {
+        return
+      }
     }
   }
 
 
   // It peeks at input and returns an "Integer" according to the alphabet
   func peekInput() -> Character? {
-    guard current != input!.endIndex else { return nil }
+    guard current != input!.endIndex else {
+      print(input!.endIndex) 
+      return nil 
+    }
     return input![current!]
   }
 
   func peekToken() -> Token {
+    if token == nil {
+      print("here")
+    }
     return token!
   }
 }

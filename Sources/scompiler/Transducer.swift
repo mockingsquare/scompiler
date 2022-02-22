@@ -11,7 +11,9 @@ import Foundation
 class Transducer {
   var sponsor: Translator? = nil
   var tables: [Table] = []
-  func performActionWithParameter(action: String, param: [Any]) -> Void { print("Shouldn't be executed")}
+  func performActionWithParameter(action: String, param: [Any]) throws -> Void { 
+    print("Shouldn't be executed")
+  }
 }
 
 class Screener: Transducer {
