@@ -92,7 +92,7 @@ final class Parser: Transducer {
   
   func doNothing() {}
 
-  override func performActionWithParameter(action: String, param: [Any]) {
+  override func performActionWithParameter(action: String, param: Any...) throws {
     switch action {
       case "buildTree":
         buildTree(param)
