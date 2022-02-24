@@ -29,18 +29,19 @@ final class Scanner: Transducer {
   func scanTokens(_ text: String) {
     // Smalltalk says ReadStream but...
     input = text
-    start = input!.startIndex
+    start = text.startIndex
     current = start
     discardToken()
   }
 
-  override func performActionWithParameter(action: String, param: Any...) throws -> Void {
+  override func performActionWithParameter(action: String, _ param: [Any]) throws -> Void {
     switch ScannerActionType(rawValue: action) {
       case .buildToken:
-        guard param.count == 1 else {  
+        guard param.count == 1 else {
+          Scompiler.logger.report("Invalid action")
           throw TransducerError.invalidAction
         }
-        buildToken(label: param as! String)
+        buildToken(label: "\(param[0])")
       default:
         throw TransducerError.invalidAction
     }
@@ -50,7 +51,7 @@ final class Scanner: Transducer {
     // Create a token with the supplied label and keptCharacters in the scanner
     // the result would be used by `peek`
     // Reset keptCharacters so the process can repeat
-    token = Token(label: label, symbol: keptCharacters)
+    self.token = Token(label: label, symbol: keptCharacters)
 
     keptCharacters = ""
   }
@@ -76,12 +77,14 @@ final class Scanner: Transducer {
         print("catch")
       }
       do {
+        Scompiler.logger.debug("\(table.type) #\(idx) is running...\n")
         idx = try table.run()!
       } catch {
         print("discardToken - having error")
         return
       }
     }
+    Scompiler.logger.debug("----> Token has been created... exiting discardToken")
   }
 
   // st.: Scanner > tables
@@ -106,7 +109,7 @@ final class Scanner: Transducer {
   // It peeks at input and returns an "Integer" according to the alphabet
   func peekInput() -> Character? {
     guard current != input!.endIndex else {
-      print(input!.endIndex) 
+      Scompiler.logger.debug("Reached the end of index of text scanning")
       return nil 
     }
     return input![current!]
@@ -114,7 +117,7 @@ final class Scanner: Transducer {
 
   func peekToken() -> Token {
     if token == nil {
-      print("here")
+      Scompiler.logger.report("Scanner/peekToken reported that the token is nil")
     }
     return token!
   }

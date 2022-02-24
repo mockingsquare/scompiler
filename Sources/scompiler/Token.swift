@@ -6,7 +6,7 @@
 //  Copyright © 2022 Jeeheon Kim. All rights reserved.
 //
 
-class Token: TreeNode, Hashable, Equatable {
+class Token: TreeNode, Hashable, Equatable, CustomStringConvertible {
   var label: String?
   var symbol: String?
 
@@ -15,12 +15,6 @@ class Token: TreeNode, Hashable, Equatable {
   init(label: String?, symbol: String?) {
     self.label = label
     self.symbol = symbol
-  }
-
-  public var description: String {
-    let l: String = label ?? "NULL"
-    let s: String = symbol ?? "NULL"
-    return "Token [label: symbol] -> \(l):\(s)"
   }
 
   static func == (lhs: Token, rhs: Token) -> Bool {
@@ -32,5 +26,11 @@ class Token: TreeNode, Hashable, Equatable {
   func hash(into hasher: inout Hasher) {
     hasher.combine(label)
     hasher.combine(symbol)
+  }
+
+  var description: String {
+    let l: String = label ?? "NULL"
+    let s: String = symbol ?? "NULL"
+    return "Token [label: symbol] -> \(l):\(s)"
   }
 }

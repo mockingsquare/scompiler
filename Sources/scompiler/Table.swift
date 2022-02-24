@@ -60,10 +60,10 @@ class ScannerReadaheadTable: Table, TableWithTransitionsWithIntKey {
 
   func run() throws -> Int? {
     let s = transducer as! Scanner
-    let char = s.peekInput()
+    let char = s.peekInput(); Scompiler.logger.debug("\t table has peeked at char `\(char)`")
     guard char != nil else { throw TransducerError.lexicalError }
-    let charAsInt = Int(char!.asciiValue!)
-    let pair = transitions[charAsInt]
+    let charAsInt = Int(char!.asciiValue!); Scompiler.logger.debug("\t\t peekedChar's ascii `\(charAsInt)`")
+    let pair = transitions[charAsInt]; Scompiler.logger.debug("\t\t transition for \(charAsInt) - \(pair) ")
     if pair != nil {
       let attributes = pair!.0; let goto = pair!.1
       let isRead = attributes.contains("R")
@@ -85,8 +85,16 @@ class ScannerReadaheadTable: Table, TableWithTransitionsWithIntKey {
     }
     let t = rawTable as! RawScannerReadaheadTable
     for triple in t.triples {
-      for characterOrInteger in Array(triple.first) {
-        let asciiInt = Int(characterOrInteger.asciiValue!)
+      for characterOrInteger in triple.first {
+        var asciiInt: Int
+        if let char = characterOrInteger as? Character {
+          asciiInt = Int((characterOrInteger as! Character).asciiValue!)
+        } else if let int = characterOrInteger as? Int {
+          asciiInt = characterOrInteger as! Int
+        } else {
+          Scompiler.logger.error("Table is set up wrong")
+          return
+        }
         transitions[asciiInt] = (triple.second, Int(triple.third)) // TODO: maybe Int64 - triple.third into Int
       }
     }
@@ -125,30 +133,32 @@ class SemanticTable: Table {
       throw TransducerError.lexicalError 
     }
     let a = action!; let p = parameters!
+    Scompiler.logger.debug("\t table has to run \(action)(\(parameters))")
     if self.transducer is Scanner {
       if scannerAction[action!] == true {
         // run the action
         let recipient = transducer!
-        try recipient.performActionWithParameter(action: a, param: p)
+        try recipient.performActionWithParameter(action: a, p)
       }  else {
         // not a scannerAction or not defined (false or nil)
         // this assumes that the scannerAction is 
         let recipient = transducer!.sponsor! // sponsor is the SampleTranslator
-        try recipient.performActionWithParameter(action: a, param: p)
+        try recipient.performActionWithParameter(action: a, p)
       }
     }
     else if self.transducer is Parser {
       if scannerAction[a] == false {
         // run the action
         let recipient = transducer!
-        try recipient.performActionWithParameter(action: a, param: p)
+        try recipient.performActionWithParameter(action: a, p)
       } else {
         // not a scannerAction or not defined (false or nil)
         // this assumes that the scannerAction is 
         let recipient = transducer!.sponsor! // sponsor is the SampleTranslator
-        try recipient.performActionWithParameter(action: a, param: p)
+        try recipient.performActionWithParameter(action: a, p)
       }
     }
+    Scompiler.logger.debug("\t\t transition to \(goto)")
     return goto
   }
 }
@@ -156,16 +166,17 @@ class SemanticTable: Table {
 class ReadaheadTable: Table, TableWithTransitionsWithStringKey {
   var type = TableType.ReadaheadTable
   var transducer: Transducer?
-  var transitions:[String: (String, Int)] = [:]
+  var transitions = [String: (String, Int)]()
 
   func registerTable(rawTable: RawTable) -> Void {
     // peek at the next token label
     guard rawTable is RawReadaheadTable else { 
-      return 
+      Scompiler.logger.error("RawTable Error: Cannot register raw table type \(rawTable.type) as ReadaheadTable")
+      return
     }
     let t = rawTable as! RawReadaheadTable
     
-    transitions = [:]
+    transitions = [String: (String, Int)]()
     for triple in t.triples {
       transitions[triple.first] = (triple.second, triple.third)
     }
@@ -180,11 +191,13 @@ class ReadaheadTable: Table, TableWithTransitionsWithStringKey {
     let token = transducer.peekScannerToken()
     let tokenLabel = token.label
     guard tokenLabel != nil else { print("TODO: implement syntax error"); return nil; }
-    if transitions[tokenLabel!] == nil {
-      print("shouldn't be")
+    let transition = transitions[tokenLabel!]
+    guard transition != nil else {
+      Scompiler.logger.error("Syntax error: `\(tokenLabel!)` is not allowed\n")
+      return nil
     }
-    let transition = transitions[tokenLabel!]!
-    let attributes = transition.0; let goto = transition.1
+
+    let attributes = transition!.0; let goto = transition!.1
     
     let isRead = attributes.contains("R")
     let isNode = attributes.contains("N")
@@ -297,8 +310,7 @@ class ReduceTable: Table, TableWithTransitionsWithIntKey {
     let t = rawTable as! RawReduceTable
       
     nonterminal = t.name
-    // aka: super.registerTable(rawTable)   
-    transitions = [:]
+    transitions = [Int : (String, Int)]()
     for triple in t.triples {
       transitions[triple.stackTopState] = (triple.attributes, triple.gotoTable)
     }    
@@ -314,7 +326,7 @@ class ReduceTable: Table, TableWithTransitionsWithIntKey {
     var tree: TreeNode? = nil
 
     if transducer.newTree != nil {
-      let tree = transducer.newTree
+      tree = transducer.newTree as! TreeNode
       transducer.newTree = nil
     } else {
       // Capture that one subtree (if any) and have it ready for stacking

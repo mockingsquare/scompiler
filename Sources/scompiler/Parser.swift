@@ -65,8 +65,10 @@ final class Parser: Transducer {
     
     while table.type != .AcceptTable {
       do {
+        Scompiler.logger.debug("\(table.type) #\(idx) is running...\n")
         idx = try table.run()! // idx be a number!
         // guard idx != nil else { break } // Else should not be run
+        Scompiler.logger.debug("\tgoing to #\(idx)...\n")
         table = tables[idx]
       } catch {
         print("Parser error")
@@ -92,7 +94,7 @@ final class Parser: Transducer {
   
   func doNothing() {}
 
-  override func performActionWithParameter(action: String, param: Any...) throws {
+  override func performActionWithParameter(action: String, _ param: [Any]) throws {
     switch action {
       case "buildTree":
         buildTree(param)
@@ -101,7 +103,7 @@ final class Parser: Transducer {
     }
   }
 
-  private func buildTree(_ rootNode: Any) {
+  private func buildTree(_ rootNode: Any...) {
     // Pick up the children from the tree stack between the left and right inclusive (provided they are not nil)
     //  and build a tree with the given label
     // Store it in instance newTree so a reduce table can use it

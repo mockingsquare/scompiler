@@ -9,5 +9,5 @@
 // protocol that all user-defined translators have to follow
 
 protocol Translator {
-  func performActionWithParameter(action: String, param: [Any]) throws -> Void
+  func performActionWithParameter(action: String, _ param: [Any]) throws -> Void
 }

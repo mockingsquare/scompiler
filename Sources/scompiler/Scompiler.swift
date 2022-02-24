@@ -8,12 +8,46 @@
 
 import Foundation
 
-struct Scompiler {
+public final class Scompiler {
+
+  public final class Logger {
+    public var output: (String) -> Void
+    public var error: (String) -> Void
+
+    init() {
+      output = {
+        Swift.print($0)
+      }
+      error = {
+        var stderr = FileHandle.standardError
+        guard let data = $0.data(using: .utf8) else {
+          fatalError() // encoding failure: handle as you wish
+        }
+        stderr.write(data)
+      }
+    }
+
+    func print(_ text: String) {
+      output(text)
+    }
+
+    func debug(_ text: String) {
+      output("[Debug] \(text)")
+    }
+
+    func report(_ text: String) {
+      error(text)
+    }
+  }
+
+  public static var logger = Logger()
   static var hadError = false
 
   static func main (_ args: [String]) throws {
-    if (args.count > 1) {
+    if (args.count > 2) {
       print("Usage: scompiler [script]")
+    } else if (args.count == 2) {
+
     } else if (args.count == 1) {
       //TODO: Make users be able to switch sample translator to another one
       //TODO: Force file extension type .jk
@@ -23,13 +57,20 @@ struct Scompiler {
     }
   } 
 
-  static func runFile(_ path: String) throws {
+  static func runFile(_ path: String, _ flag: String = "-c") throws {
     let url = URL(fileURLWithPath: path)
+
+    if url.pathExtension != "jk" {}
     let code = try String(contentsOf: url)
     
-    print("[Checkpoint] Running \(code)...")
+    logger.print("[Checkpoint] Running \(url.lastPathComponent)...")
     
-    run(code)
+    let ts = SampleTranslator()
+    if flag == "-c" {
+      ts.compile(text: code)
+    } else if flag == "-e" {
+      // ts.evaluate(text: code)
+    }
 
     if hadError { exit(65) }
   }
@@ -58,15 +99,7 @@ struct Scompiler {
       default:
         print("(error: not a valid option)")
     }
-
   }
-
-  static func run(_ code: String) {
-    let ts = SampleTranslator()
-    ts.compile(text: code)
-  }
-
-  static func evaluate(_ code: String) {}
 
   static func error(_ line: Int, _ message: String) {
     report(line, "", message)

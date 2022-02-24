@@ -3,10 +3,6 @@ extension StringProtocol {
 }
 
 // Making Pair a key to dictionary
-// private var foo: [PairStruct<Int, Int>: String] = [:]
-// func bar() {
-// 		foo[(1,2)] = "asdf"
-// }
 protocol PairConvertible {
   associatedtype T
   associatedtype U

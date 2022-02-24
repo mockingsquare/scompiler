@@ -410,39 +410,39 @@ struct SampleTranslatorTable{
     *                            *
     ******************************/
   static var t0: [RawScannerReadaheadTriple] = [
-    RawScannerReadaheadTriple("\0", "L", 4),  //MARK: should be end of file; not sure if I should put it nil
-    RawScannerReadaheadTriple("ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz", "RK", 2),
-    RawScannerReadaheadTriple(")", "RK", 6),
-    RawScannerReadaheadTriple("*", "RK", 7), 
-    RawScannerReadaheadTriple("+", "RK", 8),
-    RawScannerReadaheadTriple(",", "RK", 9), 
-    RawScannerReadaheadTriple("-", "RK", 10), 
-    RawScannerReadaheadTriple("(", "RK", 5), 
-    RawScannerReadaheadTriple("/", "RK", 11), 
-    RawScannerReadaheadTriple("0123456789", "RK", 1), 
-    RawScannerReadaheadTriple("\011\012\014\015", "R", 3), 
-    RawScannerReadaheadTriple(" ", "R", 3), 
-    RawScannerReadaheadTriple(";", "RK", 13), 
-    RawScannerReadaheadTriple("=", "RK", 14)
+    RawScannerReadaheadTriple(Array("\0"), "L", 4),  //MARK: should be end of file; not sure if I should put it nil
+    RawScannerReadaheadTriple(Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz"), "RK", 2),
+    RawScannerReadaheadTriple(Array(")"), "RK", 6),
+    RawScannerReadaheadTriple(Array("*"), "RK", 7), 
+    RawScannerReadaheadTriple(Array("+"), "RK", 8),
+    RawScannerReadaheadTriple(Array(","), "RK", 9), 
+    RawScannerReadaheadTriple(Array("-"), "RK", 10), 
+    RawScannerReadaheadTriple(Array("("), "RK", 5), 
+    RawScannerReadaheadTriple(Array("/"), "RK", 11), 
+    RawScannerReadaheadTriple(Array("0123456789"), "RK", 1), 
+    RawScannerReadaheadTriple([11, 12, 14, 15], "R", 3), 
+    RawScannerReadaheadTriple(Array(" "), "R", 3), 
+    RawScannerReadaheadTriple(Array(";"), "RK", 13), 
+    RawScannerReadaheadTriple(Array("="), "RK", 14),
   ]
    
   static var t1: [RawScannerReadaheadTriple] = [
-    RawScannerReadaheadTriple("\011\012\014\015", "L", 12), 
-    RawScannerReadaheadTriple("\0", "L", 12), 
-    RawScannerReadaheadTriple("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_+-*/=[]{}()^;#:.$'\" ", "L", 12), 
-    RawScannerReadaheadTriple("0123456789", "RK", 1)
+    RawScannerReadaheadTriple([11, 12, 14, 15], "L", 12), 
+    RawScannerReadaheadTriple(Array("\0"), "L", 12), 
+    RawScannerReadaheadTriple(Array("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_+-*/=[]{}()^;#:.$'\" "), "L", 12), 
+    RawScannerReadaheadTriple(Array("0123456789"), "RK", 1)
   ]
   static var t2: [RawScannerReadaheadTriple] = [
-    RawScannerReadaheadTriple("\011\012\014\015", "L", 15), 
-    RawScannerReadaheadTriple("\0", "L", 15), 
-    RawScannerReadaheadTriple("+-*/=[]{}()^;#:.$'\" ", "L", 15), 
-    RawScannerReadaheadTriple("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz", "RK", 2)
+    RawScannerReadaheadTriple([11, 12, 14, 15], "L", 15), 
+    RawScannerReadaheadTriple(Array("\0"), "L", 15), 
+    RawScannerReadaheadTriple(Array("+-*/=[]{}()^;#:.$'\" "), "L", 15), 
+    RawScannerReadaheadTriple(Array("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz"), "RK", 2)
   ]
   static var t3: [RawScannerReadaheadTriple] = [
-    RawScannerReadaheadTriple("\0", "L", 0),
-    RawScannerReadaheadTriple("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_0123456789+-*/=[]{}()^;#:.$'\"", "L", 0),
-    RawScannerReadaheadTriple("\011\012\014\015", "R", 3), 
-    RawScannerReadaheadTriple(" ", "R", 3)
+    RawScannerReadaheadTriple(Array("\0"), "L", 0),
+    RawScannerReadaheadTriple(Array("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_0123456789+-*/=[]{}()^;#:.$'\""), "L", 0),
+    RawScannerReadaheadTriple([11, 12, 14, 15], "R", 3), 
+    RawScannerReadaheadTriple(Array(" "), "R", 3)
   ]
   static var scannerReadaheadTables: [RawScannerReadaheadTable] = [
     RawScannerReadaheadTable("ScannerReadaheadTable", 0, 14, t0), 

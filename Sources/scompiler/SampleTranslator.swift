@@ -17,7 +17,7 @@ class SampleTranslator: Translator {
   var expressionsIfEvaluator: [String: Any]?
   var compilationOperatorMap: [String: compileClosure]?
   var evaluationOperatorMap: [String: evaluateClosure]?
-  func performActionWithParameter(action: String, param: [Any]) -> Void {
+  func performActionWithParameter(action: String, _ param: [Any]) -> Void {
     // TODO: for semantic table
   }
 
@@ -57,7 +57,7 @@ class SampleTranslator: Translator {
   func compile(text: String) {
     if let p = parser {
       guard p.parse(text) != nil else {
-        return
+        return 
       }
       self.tree = p.parse(text)
       if let t = self.tree {

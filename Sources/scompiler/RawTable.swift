@@ -208,8 +208,10 @@ struct RawParserTables: RawTables {
   var size: Int {
     // Excludes keywordsSize
     get {
-      return readaheadTablesSize + readbackTablesSize 
-      +shiftbackTablesSize + reduceTablesSize + semanticTablesSize + 1
+      var size = readaheadTablesSize + readbackTablesSize
+      size += shiftbackTablesSize + reduceTablesSize 
+      size += semanticTablesSize + 1
+      return size
     }
   }
   subscript(index: Int) -> RawTable? {
@@ -224,7 +226,10 @@ struct RawParserTables: RawTables {
     if index >= 0, index < bound[0] {return readaheadTables[index]} 
     else if index < bound[1] {return readbackTables[index - bound[0]]} 
     else if index < bound[2] {return shiftbackTables[index - bound[1]]} 
-    else if index < bound[3] {return reduceTables[index - bound[2]]}
+    else if index < bound[3] {
+      Scompiler.logger.debug("reduceTable[\(index - bound[2])] is out of bound")
+      return reduceTables[index - bound[2]]
+    }
     else if index < bound[4] {return semanticTables[index - bound[3]]}
     else if index <= bound[4] {return acceptTable}
     print("RawParserTables: Index out of bound")
@@ -262,19 +267,19 @@ struct RawParserTables: RawTables {
 
 struct RawScannerReadaheadTriple: CustomStringConvertible {
   let type = "RawScannerReadaheadTriple"
-  init(_ a: String, _ b: String, _ c: Int64) {
+  init(_ a: Array<Any>, _ b: String, _ c: Int64) {
     string = a
     attributes = b
     gotoTableNumber = c
   }
-  let string: String
+  let string: Array<Any>
   let attributes: String
   let gotoTableNumber: Int64
   var description: String {
     return ""
   }
 
-  var first: String {
+  var first: Array<Any> {
     get {return string}
   }
 
@@ -295,6 +300,7 @@ class RawScannerReadaheadTable: RawTableWithTransitions, RawTable {
     size = c
     triples = d
   }
+
   let name: String
   let stateNumber: Int64
   let size: Int64
