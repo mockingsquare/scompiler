@@ -65,22 +65,24 @@ public final class SampleTranslator: Translator {
     ]
   }
 
-  func compile(text: String) {
+  func compile(text: String) -> String {
     if let p = parser {
       let lastFromTreeStack = p.parse(text)
       guard lastFromTreeStack != nil else {
-        return 
+        Scompiler.logger.error("CompilationError: lastFromTreeStack missing")
+        return ""
       }
       self.tree = lastFromTreeStack
       if let t = self.tree {
         compileExpressionFor(t)
-        codeIfCompiler.show()
+        return codeIfCompiler.content
       } else {
         print("(debug) tree t is not there")
       }
     } else {
       print("(error: parser cannot be unwrapped)")
     }
+    return ""
   }
 
   func compileExpressionFor(_ tree: TreeNode) {
@@ -98,7 +100,10 @@ public final class SampleTranslator: Translator {
   }
 
   func compileMinus(_ tree: TreeNode) -> Void {
-    print("need to write compileMinus")
+    let t = tree as! Tree
+    compileExpressionFor(t.children[0])
+    compileExpressionFor(t.children[1])
+    generate(instruction: "MINUS")
   }
 
   func compileMultiply(_ tree: TreeNode) -> Void{
@@ -124,11 +129,11 @@ public final class SampleTranslator: Translator {
   }
 
   func compileIdentifier(_ token: TreeNode) -> Void {
-    generate(instruction: "POP", with: (token as! Token).symbol!)
+    generate(instruction: "PUSH", with: (token as! Token).symbol!)
   }
 
   func compileInteger(_ token: TreeNode) -> Void {
-    generate(instruction: "POP", with: "\((token as! Token).symbol!.asciiValues)")
+    generate(instruction: "PUSH", with: Int((token as! Token).symbol!) ?? -1 )
   }
 
   func compileFunctionCall(_ tree: TreeNode) -> Void {
@@ -156,6 +161,37 @@ public final class SampleTranslator: Translator {
   func generate(instruction: String, with: String) {
     let str = "\(instruction) \(with)\n"
     codeIfCompiler.write(str)
+  }
+  
+  func generate(instruction: String, with: Int) {
+    let str = "\(instruction) \(with)\n"
+    codeIfCompiler.write(str)
+  }
+
+  func evaluate(text: String) -> Any? {
+    // If not variables are set up, just return the expression
+    // Otherwise, return a dictionary of variables
+    if let p = parser {
+      let lastFromTreeStack = p.parse(text)
+      guard lastFromTreeStack != nil else {
+        Scompiler.logger.debug("parser returned nil")
+        return nil
+      }
+      self.tree = lastFromTreeStack
+      if let t = self.tree {
+        let result = evaluateExpressionFor(t) // see result and variable dictionary
+        if expressionsIfEvaluator!.count == 0 {
+          return result
+        } else {
+          return expressionsIfEvaluator
+        }
+      } else {
+        print("(debug) tree t is not there")
+      }
+    } else {
+      print("(error: parser cannot be unwrapped)")
+    }
+    return nil
   }
 
   func evaluateExpressionFor(_ tree: TreeNode) -> Int {

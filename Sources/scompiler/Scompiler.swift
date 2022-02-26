@@ -56,7 +56,7 @@ public final class Scompiler {
     }
   } 
 
-  static func runFile(_ path: String, _ flag: String = "-c") throws {
+  static func runFile(_ path: String, _ flag: String = "-e") throws {
     let url = URL(fileURLWithPath: path)
 
     if url.pathExtension != "jk" {}
@@ -66,9 +66,13 @@ public final class Scompiler {
     
     let ts = SampleTranslator()
     if flag == "-c" {
-      ts.compile(text: code)
+      Scompiler.logger.print("[Compile]")
+      let result = ts.compile(text: code)
+      Scompiler.logger.print(result)
     } else if flag == "-e" {
-      // ts.evaluate(text: code)
+      Scompiler.logger.print("[Evaluate]")
+      let result = ts.evaluate(text: code)
+      // Scompiler.logger.print(result)
     }
 
     if hadError { exit(65) }
@@ -83,7 +87,9 @@ public final class Scompiler {
         while true {
             print("> ", terminator: "")
             guard let code = readLine() else { continue }
-            ts.compile(text: code)
+            Scompiler.logger.print("[Compile]")
+            let result = ts.compile(text: code)
+            Scompiler.logger.print(result)
 
             hadError = false
         }
@@ -91,7 +97,9 @@ public final class Scompiler {
         while true {
             print("> ", terminator: "")
             guard let code = readLine() else { continue }
-            // ts.evaluate(text: code)
+            Scompiler.logger.print("[Evaluate]")
+            let result = ts.evaluate(text: code)
+            Scompiler.logger.print("\(result!)")
 
             hadError = false
         }
