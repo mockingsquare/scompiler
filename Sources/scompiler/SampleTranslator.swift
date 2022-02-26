@@ -58,10 +58,10 @@ public final class SampleTranslator: Translator {
       "*": evaluateMultiply,
       "/": evaluateDivide,
       // "<-": "evaluateAssign",
-      // "Identifier": "evaluateIdentifier",
-      // "Integer": "evaluateInteger",
+      "Identifier": evaluateIdentifier,
+      "Integer": evaluateInteger,
       // "send": "evaluateFunctionCall",
-      // "where": "evaluateWhere",      
+      "where": evaluateWhere,      
     ]
   }
 
@@ -143,8 +143,10 @@ public final class SampleTranslator: Translator {
 
   func compileWhere(_ tree: TreeNode) -> Void {
     //TODO: [Not implemented] It's ignoring other children
-    let aChild = (tree as! Tree).children[0]
-    compileExpressionFor(aChild)
+    let t = tree as! Tree
+    for child in t.children {
+      compileExpressionFor(child)
+    }
   }
 
   func generate(instruction: String) {
@@ -186,5 +188,40 @@ public final class SampleTranslator: Translator {
     let exp1 = evaluateExpressionFor(t.children[0])
     let exp2 = evaluateExpressionFor(t.children[1])
     return exp1 / exp2
+  }
+
+  func evaluateIdentifier(_ token: TreeNode) -> Int {
+    let t = token as! Token
+
+    let identifier = t.symbol!
+    let value = expressionsIfEvaluator![identifier] as! Int
+
+    return value
+  }
+
+  func evaluateInteger(_ token: TreeNode) -> Int {
+    let t = token as! Token
+    return Int(t.symbol! as! String)!
+  }
+
+  func evaluateWhere(_ tree: TreeNode) -> Int {
+    // 1. Evaluate all but the first expression to obtain the values for individual variables
+    // 2. Store them in expressionsIfEvaluator and finally evaluate the first expression
+    let t = tree as! Tree
+    if t.children.count < 2 {
+      Scompiler.logger.error("Evaluatewhere: tree should have more than one child")
+    }
+
+    // MARK: Assumes that children count is even
+    // Identifier, treeNode, Identifier, treeNode,.. 
+    for idx in stride(from:1 , to: t.children.count-1, by: 2) {
+      // Evaluate except the first child
+      let i = t.children[idx] as! Token
+      let value = evaluateExpressionFor(t.children[idx+1])
+      expressionsIfEvaluator![i.symbol!] = value
+    }
+    
+    let finalValue = evaluateExpressionFor(t.children[0])
+    return finalValue
   }
 }
