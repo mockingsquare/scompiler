@@ -47,12 +47,12 @@ final class Scanner: Transducer {
     }
   }
 
-  func buildToken(label: String) {
+  private func buildToken(label: String) {
     // Create a token with the supplied label and keptCharacters in the scanner
     // the result would be used by `peek`
     // Reset keptCharacters so the process can repeat
     self.token = Token(label: label, symbol: keptCharacters)
-
+    Scompiler.logger.debug("\tbuildToken \(label): \(keptCharacters)")
     keptCharacters = ""
   }
 
@@ -69,7 +69,10 @@ final class Scanner: Transducer {
     // Execute tables in a loop starting with table1 until token is no longer nil
     // * Somewhere during this execution, the semantic action buildToken:
     // * will execute putting something into variable 'token'
+    Scompiler.logger.debug("----> Running discardToken")
+
     var idx = 0
+    token = nil
 
     while token == nil {
       let table = tables[idx] 
@@ -87,7 +90,6 @@ final class Scanner: Transducer {
     Scompiler.logger.debug("----> Token has been created... exiting discardToken")
   }
 
-  // st.: Scanner > tables
   func registerTables(rawTables: RawTables) ->  Void {
     let rawTablesIndices = 0..<rawTables.size
     // transform rawTable (tableType tableNumber ...) to appropriate tableObjects
@@ -110,7 +112,7 @@ final class Scanner: Transducer {
   func peekInput() -> Character? {
     guard current != input!.endIndex else {
       Scompiler.logger.debug("Reached the end of index of text scanning")
-      return nil 
+      return "\0"
     }
     return input![current!]
   }

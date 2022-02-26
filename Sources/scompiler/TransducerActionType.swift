@@ -3,3 +3,8 @@ enum ScannerActionType: String {
     // Scanner tables
     buildToken
 }
+
+enum ParserActionType: String {
+    case
+    buildTree
+}

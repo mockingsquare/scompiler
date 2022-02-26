@@ -23,6 +23,11 @@ class Tree: TreeNode {
     print("tree initializaer empty")
   }
 
+  init(label: String, children: [TreeNode]) {
+    self.label = label
+    self.children = children
+  }
+
   func addChild(aTree: TreeNode) {
     children.append(aTree)
   }

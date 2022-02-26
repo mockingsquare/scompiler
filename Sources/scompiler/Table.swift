@@ -127,6 +127,7 @@ class SemanticTable: Table {
     // if not understandable for both, value of nil
     let scannerAction = [
       "buildToken": true,
+      "buildTree": false
     ]
 
     guard action != nil, parameters != nil else { 
@@ -208,6 +209,8 @@ class ReadaheadTable: Table, TableWithTransitionsWithStringKey {
     transducer.discardScannerToken()
     if isStack {
       transducer.tokenStack.append(token)
+      transducer.tableNumberStack.append(goto)
+      transducer.treeStack.append(isNode ? token : nil)
       transducer.right = transducer.tokenStack.count - 1
       transducer.left = transducer.right + 1
     }
@@ -217,6 +220,8 @@ class ReadaheadTable: Table, TableWithTransitionsWithStringKey {
     // Case "R": meas look("L")
     // Case "N": make the token part of a tree
     // Case "S": stack - 
+    Scompiler.logger.debug("\tleft: \( transducer.left), right: \( transducer.right)")
+    Scompiler.logger.debug("\t\ttransition for \(tokenLabel) to \(goto)")
     return goto
   }
 }
@@ -261,7 +266,7 @@ class ReadbackTable: Table, TableWithTransitionsWithPairKey {
     if isRead {
       transducer.left = transducer.left - 1
     }
-
+    Scompiler.logger.debug("\tleft: \( transducer.left), right: \( transducer.right)")
     return goto
   }
 }
@@ -291,6 +296,8 @@ class ShiftbackTable: Table {
 
     //Adjust left by the amount specified and return the goto table
     transducer.left = transducer.left - shift
+    Scompiler.logger.debug("\tleft: \( transducer.left), right: \( transducer.right)")
+
     return goto
   }
 }
@@ -309,7 +316,7 @@ class ReduceTable: Table, TableWithTransitionsWithIntKey {
     }
     let t = rawTable as! RawReduceTable
       
-    nonterminal = t.name
+    nonterminal = t.nonterminal
     transitions = [Int : (String, Int)]()
     for triple in t.triples {
       transitions[triple.stackTopState] = (triple.attributes, triple.gotoTable)
@@ -330,6 +337,7 @@ class ReduceTable: Table, TableWithTransitionsWithIntKey {
       transducer.newTree = nil
     } else {
       // Capture that one subtree (if any) and have it ready for stacking
+      Scompiler.logger.debug("\tArray of size (\(transducer.treeStack.count)) - [\(transducer.left)~\(transducer.right)]")
       let indices = transducer.left...transducer.right
       let treeStackWithNils = transducer.treeStack[indices]
       let children = treeStackWithNils.compactMap { $0 } // store treeStack without nils
@@ -358,25 +366,27 @@ class ReduceTable: Table, TableWithTransitionsWithIntKey {
     //        + use a new token(instead of next token) you create using the nonterminal as a symbol
     //        + adjust `left` and `right`
     let tableNumber = transducer.tableNumberStack.last!
-    let transition = transitions[tableNumber]!
-    if  transition == nil {
+    
+    if  let transition = self.transitions[tableNumber] {
+      let attribute = transition.0; let goto = transition.1;
+      let isStack = attribute.contains("S")
+      let isNode = attribute.contains("N")
+      if isStack {
+        let newToken = Token(label: nonterminal, symbol: nonterminal)
+        transducer.tokenStack.append(newToken)
+
+        transducer.tableNumberStack.append(goto)
+        transducer.treeStack.append(isNode ? tree : nil)
+        Scompiler.logger.debug("\ttoken added to the stack is <\(nonterminal): \( nonterminal)>")
+      }
+      transducer.right = transducer.treeStack.count - 1
+      transducer.left = transducer.right + 1
+      Scompiler.logger.debug("\tleft: \( transducer.left), right: \( transducer.right)")
+
+      return goto
+    } else {
       throw TransducerError.designError("")
     }
-    
-    let attribute = transition.0; let goto = transition.1;
-    let isStack = attribute.contains("S")
-    let isNode = attribute.contains("N")
-    if isStack {
-      let newToken = Token(label: nonterminal, symbol: nonterminal)
-      transducer.tokenStack.append(newToken)
-
-      transducer.tableNumberStack.append(goto)
-      transducer.treeStack.append(isNode ? tree : nil)
-    }
-    transducer.right = transducer.treeStack.count - 1
-    transducer.left = transducer.right + 1
-
-    return goto
   }
 }
 

@@ -56,10 +56,11 @@ class SampleTranslator: Translator {
 
   func compile(text: String) {
     if let p = parser {
-      guard p.parse(text) != nil else {
+      let lastFromTreeStack = p.parse(text)
+      guard lastFromTreeStack != nil else {
         return 
       }
-      self.tree = p.parse(text)
+      self.tree = lastFromTreeStack
       if let t = self.tree {
         compileExpressionFor(t)
       } else {

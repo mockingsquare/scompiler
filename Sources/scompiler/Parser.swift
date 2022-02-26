@@ -12,10 +12,10 @@ final class Parser: Transducer {
   var tokenStack: [Token] = [
     Token(label: "|-", symbol: "|-")
   ]
-  var tableNumberStack: [Int] = [1]
-  var treeStack: [TreeNode?] = []
-  var left: Int = 1   // left, right has to do with a treeStack
-  var right: Int = 1
+  var tableNumberStack: [Int] = [0]
+  var treeStack: [TreeNode?] = [nil]
+  var left: Int = 0   // left, right has to do with a treeStack
+  var right: Int = 0
   var tableNumber: AnyObject? = nil
   var newTree: AnyObject? = nil
 
@@ -92,22 +92,29 @@ final class Parser: Transducer {
     }
   }
   
-  func doNothing() {}
+  func doNothing() {
+    Scompiler.logger.error("Error: performActionWithParameter causing error.")
+    
+  }
 
   override func performActionWithParameter(action: String, _ param: [Any]) throws {
-    switch action {
-      case "buildTree":
-        buildTree(param)
+    switch ParserActionType(rawValue: action) {
+      case .buildTree:
+        buildTree("\(param[0])")
       default:
         doNothing() //nothing
     }
   }
 
-  private func buildTree(_ rootNode: Any...) {
-    // Pick up the children from the tree stack between the left and right inclusive (provided they are not nil)
-    //  and build a tree with the given label
-    // Store it in instance newTree so a reduce table can use it
-    // TODO: code missing
+  private func buildTree(_ rootNode: String) {
+    /* 
+    Pick up the children from the tree stack between the left and right inclusive (provided they are not nil)
+      and build a tree with the given label
+    Store it in instance newTree so a reduce table can use it
+    */
+    let range = left...right
+    let children = treeStack[range].compactMap{ $0 } // no nil
+    self.newTree = Tree(label: rootNode, children: children)
   }
 
   func discardScannerToken() -> Void {
@@ -115,6 +122,7 @@ final class Parser: Transducer {
   }
 
   func peekScannerToken() -> Token {
+    Scompiler.logger.debug("\t\tpeekScannerToken")
     return screener.screen(scanner.peekToken())
   }
 }

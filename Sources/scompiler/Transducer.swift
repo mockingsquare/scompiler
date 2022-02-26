@@ -36,8 +36,11 @@ class Screener: Transducer {
     // if the token is an Identifier (of some sort)
     // and Screener's keyword contains a token's symbol
     // -> return a new token ([label:symbol] symbol:symbol)
-    let newToken = Token(label: token.symbol, symbol: token.symbol)
+    if !self.keywords.contains(token.symbol!) {
+      return token
+    }
 
+    let newToken = Token(label: token.symbol!, symbol: token.symbol!)
     return newToken
   }
 }
