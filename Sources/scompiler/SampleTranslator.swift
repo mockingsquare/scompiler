@@ -10,10 +10,21 @@ import Foundation
 typealias compileClosure = (TreeNode) -> Void
 typealias evaluateClosure = (TreeNode) -> Int
 
-class SampleTranslator: Translator {
+public final class SampleTranslator: Translator {
   var parser: Parser?
   var tree: TreeNode? = nil
-  var codeIfCompiler: OutputStream = OutputStream(toMemory: ())
+  var codeIfCompiler: InputStream = InputStream()
+  public final class InputStream {
+    public var content: String = ""
+    
+    final func write(_ text: String){
+      content += "\n\(text)"
+    }
+    
+    final func show() {
+      Swift.print(content)
+    } 
+  }
   var expressionsIfEvaluator: [String: Any]?
   var compilationOperatorMap: [String: compileClosure]?
   var evaluationOperatorMap: [String: evaluateClosure]?
@@ -63,6 +74,7 @@ class SampleTranslator: Translator {
       self.tree = lastFromTreeStack
       if let t = self.tree {
         compileExpressionFor(t)
+        codeIfCompiler.show()
       } else {
         print("(debug) tree t is not there")
       }
@@ -72,8 +84,7 @@ class SampleTranslator: Translator {
   }
 
   func compileExpressionFor(_ tree: TreeNode) {
-    let t = tree as! Tree // or is it a token?
-    if let operatorMapFunction = compilationOperatorMap?[t.label!] {
+    if let operatorMapFunction = compilationOperatorMap?[tree.label!] {
       operatorMapFunction(tree)
     }
   }
@@ -112,9 +123,13 @@ class SampleTranslator: Translator {
     }
   }
 
-  func compileIdentifier(_ tree: TreeNode) -> Void {}
+  func compileIdentifier(_ token: TreeNode) -> Void {
+    generate(instruction: "POP", with: (token as! Token).symbol!)
+  }
 
-  func compileInteger(_ tree: TreeNode) -> Void {}
+  func compileInteger(_ token: TreeNode) -> Void {
+    generate(instruction: "POP", with: "\((token as! Token).symbol!.asciiValues)")
+  }
 
   func compileFunctionCall(_ tree: TreeNode) -> Void {
     let t = tree as! Tree
@@ -123,7 +138,7 @@ class SampleTranslator: Translator {
       compileExpressionFor(t.children[index])
     }
     let aToken = t.children[0] as! Token
-    generate(instruction: "FUNCTION_CALL", operand: aToken.symbol!)
+    generate(instruction: "FUNCTION_CALL", with: aToken.symbol!)
   }
 
   func compileWhere(_ tree: TreeNode) -> Void {
@@ -133,12 +148,12 @@ class SampleTranslator: Translator {
   }
 
   func generate(instruction: String) {
-    codeIfCompiler.write(Data(instruction.utf8))
+    codeIfCompiler.write("\(instruction)\n")
   }
 
-  func generate(instruction: String, operand: String) {
-    let str = "\n" + instruction + " "
-    codeIfCompiler.write(Data(str.utf8))
+  func generate(instruction: String, with: String) {
+    let str = "\(instruction) \(with)\n"
+    codeIfCompiler.write(str)
   }
 
   func evaluateExpressionFor(_ tree: TreeNode) -> Int {
