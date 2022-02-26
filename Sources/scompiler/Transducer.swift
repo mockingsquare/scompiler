@@ -27,7 +27,7 @@ class Screener: Transducer {
 
   func screen(_ token: Token) -> Token {
     //older name is #Identifier and newer name is #walkIdentifier
-    if !(token.label == "identifier" || token.label == "walkIdentifier") {
+    if !(token.label == "Identifier" || token.label == "walkIdentifier") {
       // if not #Identifier nor #walkIdentifier
       return token
     } 
